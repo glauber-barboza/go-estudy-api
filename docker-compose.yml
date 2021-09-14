@@ -1,0 +1,39 @@
+version: "3.7"
+
+services:
+  postgres-database:
+    image: postgres:13.2
+    container_name: book-db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: books
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 123456
+      PGDATA: /var/lib/postgresql/data/webapi-mvc
+    volumes:
+      - webapi-mvc:/var/lib/postgresql/data
+    networks:
+      - app-book
+
+  server:
+      container_name: book-api
+      restart: unless-stopped
+      build:
+        context: .
+        dockerfile: Dockerfile
+      depends_on:
+        - postgres-database
+      ports:
+      - "8080:8080"
+      networks:
+        - app-book
+
+volumes:
+  webapi-mvc:
+
+networks:
+  app-book:
+    driver: bridge
